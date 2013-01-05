@@ -1,4 +1,5 @@
 *.py[cod]
+credentials/*
 
 # C extensions
 *.so

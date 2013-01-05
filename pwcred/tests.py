@@ -8,39 +8,42 @@ from pwcred import security
 
 from . import test_helpers as H
 from . import views
+from . import model as M
 
 class ViewTests(unittest.TestCase):
 
     def setUp(self):
         self.config = testing.setUp()
         H.configure_app(self.config)
-        H.make_credentials('pwcred', 'test', a=1)
-        H.make_credentials('pwcred', 'prod', a=2)
         self.key, self.pubkey = H.make_key()
         self.key_str = self.key.exportKey()
+        self.prod_cli = H.make_client('prod-cli', self.pubkey, context='prod')
+        self.test_cli = H.make_client('test-cli', self.pubkey, context='prod')
+        H.make_credentials('pwcred', self.test_cli, a=1)
+        H.make_credentials('pwcred', self.prod_cli, a=2)
 
     def tearDown(self):
         testing.tearDown()
 
     def test_creds_test(self):
         path = '/pwcred/'
-        client = H.make_client(self.pubkey, context='test', ip_addrs=[ '1.2.3.4'] )
-        signed_params = security.sign_request(path, {}, client['_id'], self.key_str)
+        signed_params = security.sign_request(path, {}, self.test_cli._id, self.key_str)
         req = testing.DummyRequest(
             path='/pwcred/', params=signed_params, remote_addr='1.2.3.4',
             matchdict=dict(key='pwcred'))
         resp = views.get_creds(req)
-        self.assertEqual(resp, dict(a=1))
+        decrypted = M.decrypt_credentials(self.key_str, self.test_cli, **resp)
+        self.assertEqual(decrypted, dict(a=1))
         
     def test_creds_prod(self):
         path = '/pwcred/'
-        client = H.make_client(self.pubkey, context='prod', ip_addrs=[ '1.2.3.4'] )
-        signed_params = security.sign_request(path, {}, client['_id'], self.key_str)
+        signed_params = security.sign_request(path, {}, self.prod_cli._id, self.key_str)
         req = testing.DummyRequest(
             path='/pwcred/', params=signed_params, remote_addr='1.2.3.4',
             matchdict=dict(key='pwcred'))
         resp = views.get_creds(req)
-        self.assertEqual(resp, dict(a=2))
+        decrypted = M.decrypt_credentials(self.key_str, self.test_cli, **resp)
+        self.assertEqual(decrypted, dict(a=2))
         
 
 class SecurityTests(unittest.TestCase):
@@ -48,7 +51,7 @@ class SecurityTests(unittest.TestCase):
         H.configure_ming()
         self.key, self.pubkey = H.make_key()
         self.key_str = self.key.exportKey()
-        self.client = H.make_client(self.pubkey, ip_addrs=[ '1.2.3.4'] )
+        self.client = H.make_client('cli', self.pubkey, ip_addrs=[ '1.2.3.4'] )
 
     def test_valid(self):
         path = '/a/b/c'

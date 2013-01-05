@@ -32,6 +32,9 @@ setup(name='pwcred',
       install_requires=requires,
       tests_require=requires,
       test_suite="pwcred",
+      scripts=[
+        'scripts/pwcred',
+        ],
       entry_points = """\
       [paste.app_factory]
       main = pwcred:main
