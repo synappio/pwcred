@@ -21,7 +21,7 @@ class PWCredClient(object):
             pr.path, {}, 
             self._client_id, self._key)
         response = requests.get(url, params=params)
-        rjson = response.json
+        rjson = response.json()
         rjson = dict(
             (k, v.decode('base64'))
             for k,v in rjson.items())
