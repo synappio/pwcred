@@ -15,12 +15,11 @@ def main(global_config, **settings):
     ming.configure(**settings)
     config = Configurator(settings=settings)
     add_routes(config)
-    config.add_static_view('static', 'static', cache_max_age=3600)
     config.scan()
     return config.make_wsgi_app()
 
 def add_routes(config):
-    config.add_route('creds', '/{key}/')
+    config.add_route('creds', '/cred/{key}/')
     
 def update_settings_from_environ(settings):
     for k,v in settings.items():

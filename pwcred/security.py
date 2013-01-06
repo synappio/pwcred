@@ -38,7 +38,7 @@ def validate_request(request):
         if not client:
             raise exc.HTTPNotFound()
         to_sign = request.path + '?' + urlencode(sorted(params.items()))
-        print 'Validating', to_sign
+        print 'Validate', to_sign
         if not signature_is_valid(to_sign, signature_str, client.public_key):
             raise exc.HTTPForbidden()
         if client.ip_addrs and request.remote_addr not in client.ip_addrs:

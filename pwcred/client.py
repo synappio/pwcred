@@ -1,5 +1,5 @@
 import json
-from urlparse import urljoin
+from urlparse import urljoin, urlparse
 
 import requests
 
@@ -8,17 +8,18 @@ from . import security
 class PWCredClient(object):
 
     def __init__(self, url, client_id, private_key):
+        if not url.endswith('/'):
+            url += '/'
         self._url = url
         self._client_id = client_id
         self._key = private_key
         
     def get(self, key):
         url = urljoin(self._url, key) + '/'
+        pr = urlparse(url)
         params = security.sign_request(
-            '/' + key + '/',
-            {},
-            self._client_id,
-            self._key)
+            pr.path, {}, 
+            self._client_id, self._key)
         response = requests.get(url, params=params)
         rjson = response.json
         rjson = dict(
