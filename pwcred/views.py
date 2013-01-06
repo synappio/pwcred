@@ -5,7 +5,6 @@ from . import model as M
 
 @view_config(route_name='creds', renderer='json', request_method='GET')
 def get_creds(request):
-    import pdb; pdb.set_trace()
     client_doc = security.validate_request(request)
     doc = M.credentials.m.get(
         client_id=client_doc._id,

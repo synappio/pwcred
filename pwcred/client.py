@@ -14,7 +14,6 @@ class PWCredClient(object):
         
     def get(self, key):
         url = urljoin(self._url, key) + '/'
-        import pdb; pdb.set_trace()
         params = security.sign_request(
             '/' + key + '/',
             {},
