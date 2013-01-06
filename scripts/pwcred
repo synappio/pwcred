@@ -76,7 +76,7 @@ def do_client_read(cname, key, fn_private_key=None):
     creds = M.credentials.m.get(key=key, client_id=cname)
     assert creds
     if fn_private_key is None:
-        print '<Enc %r>' % creds.creds
+        print '<Enc %r>' % creds.enc_creds
         return
     with path(fn_private_key).open() as fp:
         plaintext = security.decrypt(
